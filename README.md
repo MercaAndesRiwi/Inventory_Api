@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+
 # Mercandes-api-inventory
 
 Deterministic inventory API (F3) for MercadAndes.
@@ -435,3 +437,14 @@ Every push to `main` or `develop` triggers `.github/workflows/ci.yml`:
 2. `uv run ruff check`
 3. `uv run pytest`
 4. Docker image build and push to GitHub Container Registry (GHCR)
+   =======
+
+# Inventory_Api
+
+>>>>>>> 3cffdb9f1f34ca24db241f565b82d70bc6a3d462
+>>>>>>>
+>>>>>>
+>>>>>
+>>>>
+>>>
+>>
