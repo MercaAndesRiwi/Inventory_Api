@@ -1,6 +1,4 @@
-<<<<<<< HEAD
-
-# Mercandes-api-inventory
+## Mercandes-api-inventory
 
 Deterministic inventory API (F3) for MercadAndes.
 
@@ -193,9 +191,10 @@ Use this endpoint to retrieve the details of a single seller by their `seller_id
 
 **URL:** `GET /api/v1/sellers/{seller_id}`
 
-| Field         | What to type      | Example value |
-| ------------- | ----------------- | ------------- |
-| `seller_id` | Seller identifier | `SEL-001`   |
+
+| Field       | What to type      | Example value |
+| ------------- | ------------------- | --------------- |
+| `seller_id` | Seller identifier | `SEL-001`     |
 
 **Steps in Swagger:**
 
@@ -229,12 +228,13 @@ Use this endpoint to retrieve the details of a single seller by their `seller_id
 
 > Inventory refreshes deterministically every 10 minutes from a pool of 50,000 SKUs. At least 3% of requests return simulated rate-limit or service errors (HTTP 429 / 503). You can optionally filter by adding query parameter `sku=SKU-XXXXX`.
 
-| Field             | What to type                                    | Example value        |
-| ----------------- | ----------------------------------------------- | -------------------- |
-| `seller_id`     | Copy from Endpoint 2 response                   | `SEL-001`          |
-| `page`          | Leave as default                                | `1`                |
-| `limit`         | Leave as default                                | `10`               |
-| `sku`           | (Optional) Product SKU filter                   | `SKU-00042`        |
+
+| Field           | What to type                              | Example value      |
+| ----------------- | ------------------------------------------- | -------------------- |
+| `seller_id`     | Copy from Endpoint 2 response             | `SEL-001`          |
+| `page`          | Leave as default                          | `1`                |
+| `limit`         | Leave as default                          | `10`               |
+| `sku`           | (Optional) Product SKU filter             | `SKU-00042`        |
 | `Authorization` | Click **Authorize** button, paste a token | `token-seller-123` |
 
 ---
@@ -245,10 +245,11 @@ Retrieve the stock for a single SKU belonging to a seller.
 
 **URL:** `GET /api/v1/sellers/{seller_id}/inventory/{sku}`
 
-| Field             | What to type                                    | Example value        |
-| ----------------- | ----------------------------------------------- | -------------------- |
-| `seller_id`     | Copy from Endpoint 2 response                   | `SEL-001`          |
-| `sku`           | Product SKU                                     | (From Endpoint 4)    |
+
+| Field           | What to type                              | Example value      |
+| ----------------- | ------------------------------------------- | -------------------- |
+| `seller_id`     | Copy from Endpoint 2 response             | `SEL-001`          |
+| `sku`           | Product SKU                               | (From Endpoint 4)  |
 | `Authorization` | Click **Authorize** button, paste a token | `token-seller-123` |
 
 **Valid tokens (from your `.env` file):**
@@ -297,13 +298,14 @@ Retrieve the stock for a single SKU belonging to a seller.
 
 If you just want working values without thinking, use these:
 
-| Endpoint                                            | Field             | Copy this value                              |
+
+| Endpoint                                          | Field           | Copy this value                            |
 | --------------------------------------------------- | ----------------- | -------------------------------------------- |
 | `GET /api/v1/inventory/stock`                     | `sku`           | `SKU-001`                                  |
 | `GET /api/v1/inventory/stock`                     | `store_id`      | `STO-001`                                  |
 | `GET /api/v1/inventory/stock`                     | `seed`          | `42`                                       |
 | `GET /api/v1/inventory/stock`                     | `max_stock`     | `450`                                      |
-| `GET /api/v1/sellers`                             | (none)            | Just click Execute                           |
+| `GET /api/v1/sellers`                             | (none)          | Just click Execute                         |
 | `GET /api/v1/sellers/{seller_id}`                 | `seller_id`     | `SEL-001`                                  |
 | `GET /api/v1/sellers/{seller_id}/inventory`       | `seller_id`     | `SEL-001`                                  |
 | `GET /api/v1/sellers/{seller_id}/inventory`       | `Authorization` | `token-seller-123`                         |
@@ -397,8 +399,9 @@ api-inventory/
 
 ## Environment variables
 
-| Variable                      | Description                           | Default value                                                |
-| ----------------------------- | ------------------------------------- | ------------------------------------------------------------ |
+
+| Variable                    | Description                           | Default value                                              |
+| ----------------------------- | --------------------------------------- | ------------------------------------------------------------ |
 | `APP_ENV`                   | Runtime environment                   | `development`                                              |
 | `MASTER_SEED`               | Seed for deterministic catalog        | `42`                                                       |
 | `MAX_STOCK`                 | Maximum stock per item                | `450`                                                      |
@@ -409,9 +412,9 @@ api-inventory/
 | `VALID_TOKENS`              | Valid Bearer tokens (comma-separated) | `token-seller-123,bearer-token-mercaandes-2026,test-token` |
 | `POS_DB_HOST`               | PostgreSQL host                       | `localhost`                                                |
 | `POS_DB_PORT`               | PostgreSQL port                       | `5432`                                                     |
-| `POS_DB_NAME`               | Database name                         | `MercaAndes`                                               |
-| `POS_DB_USER`               | PostgreSQL user                       | `Luiguigarizado`                                           |
-| `POS_DB_PASSWORD`           | PostgreSQL password                   | `luigui1234`                                               |
+| `POS_DB_NAME`               | Database name                         | Change_me                                                  |
+| `POS_DB_USER`               | PostgreSQL user                       | Change_me                                                  |
+| `POS_DB_PASSWORD`           | PostgreSQL password                   | Change_me                                                  |
 
 ---
 
@@ -437,7 +440,7 @@ Every push to `main` or `develop` triggers `.github/workflows/ci.yml`:
 2. `uv run ruff check`
 3. `uv run pytest`
 4. Docker image build and push to GitHub Container Registry (GHCR)
-   =======
+   ===============================================================
 
 # Inventory_Api
 
