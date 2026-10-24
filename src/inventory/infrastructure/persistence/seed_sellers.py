@@ -105,6 +105,11 @@ def main() -> None:
             );
         """))
 
+        count = conn.execute(text("SELECT COUNT(*) FROM public.sellers")).scalar()
+        if count and count >= TOTAL_TARGET_SELLERS:
+            print(f"Database already initialized with {count} sellers.")
+            return
+
         conn.execute(
             text("""
                 INSERT INTO public.sellers (seller_id, name, seller_type, country)
