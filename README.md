@@ -45,6 +45,7 @@ docker compose up --build -d
 ```
 
 Esto ejecutara:
+
 - **`db`**: Contenedor PostgreSQL 16 expuesto en el puerto `5432`.
 - **`api`**: Contenedor FastAPI expuesto en el puerto `8000`, el cual sembrara la tabla de sellers automaticamente al arrancar.
 
@@ -84,11 +85,13 @@ Abre en tu navegador: **[http://localhost:8000/docs](http://localhost:8000/docs)
 ### Paso 1: Autenticacion (Para endpoints de inventario)
 
 Los endpoints de inventario requieren autorizacion previa:
+
 1. Haz clic en el boton **Authorize** (arriba a la derecha en Swagger).
 2. En el campo `Value`, ingresa uno de los tokens validos configurados:
    ```text
    token-seller-123
    ```
+
    *(Swagger anade `Bearer ` automaticamente, no es necesario escribirlo).*
 3. Presiona **Authorize** y luego **Close**.
 
@@ -96,33 +99,36 @@ Los endpoints de inventario requieren autorizacion previa:
 
 ### Paso 2: Valores exactos para probar los endpoints
 
-| Endpoint | Descripcion | Requiere Auth | Parametros de ejemplo para copiar |
-| :--- | :--- | :---: | :--- |
-| **`GET /`** | Health Check del servicio | No | *(Ninguno, solo Execute)* |
-| **`GET /api/v1/inventory/stock`** | Stock determinista (SKU / Tienda) | No | `sku`: `SKU-00001`<br>`store_id`: `STORE-1` |
-| **`GET /api/v1/sellers`** | Listar todos los vendedores de la BD | No | *(Ninguno, solo Execute)* |
-| **`GET /api/v1/sellers/{seller_id}`** | Consultar vendedor por ID | No | `seller_id`: `SEL-001` |
-| **`GET /api/v1/sellers/{seller_id}/inventory`** | Inventario paginado de un vendedor | **Si** | `seller_id`: `SEL-001`<br>`page`: `1`<br>`limit`: `10` |
-| **`GET /api/v1/sellers/{seller_id}/inventory/{sku}`** | Stock de un SKU especifico del vendedor | **Si** | `seller_id`: `SEL-001`<br>`sku`: `SKU-23229` |
+| Endpoint                                                      | Descripcion                                          | Requiere Auth | Parametros de ejemplo para copiar                  |
+| :------------------------------------------------------------ | :--------------------------------------------------- | :-----------: | :------------------------------------------------- |
+| **`GET /`**                                           | Health Check del servicio                            |      No      | *(Ninguno, solo Execute)*                        |
+| **`GET /api/v1/inventory/stock`**                     | Stock determinista (SKU / Tienda)                    |      No      | `sku`: `SKU-00001store_id`: `STORE-1`        |
+| **`GET /api/v1/sellers`**                             | Listar todos los vendedores de la BD                 |      No      | *(Ninguno, solo Execute)*                        |
+| **`GET /api/v1/sellers/{seller_id}`**                 | Consultar vendedor por ID                            |      No      | `seller_id`: `SEL-001`                         |
+| **`GET /api/v1/sellers/{seller_id}/score`**           | Consultar el puntaje ya calculado y guardado en Gold |      No      | `seller_id`: `SEL-001`                         |
+| **`GET /api/v1/sellers/{seller_id}/inventory`**       | Inventario paginado de un vendedor                   | **Si** | `seller_id`: `SEL-001page`: `1limit`: `10` |
+| **`GET /api/v1/sellers/{seller_id}/inventory/{sku}`** | Stock de un SKU especifico del vendedor              | **Si** | `seller_id`: `SEL-001sku`: `SKU-23229`       |
 
-> **Nota sobre los SKUs:**  
+> **Nota sobre los SKUs:**
 > Cada vendedor tiene asignado un subconjunto de los 50,000 SKUs disponibles. Para consultar un SKU especifico, puedes usar `SKU-23229` (pertenece a `SEL-001`) o tomar cualquier `sku` devuelto por el endpoint paginado del vendedor.
+
+El endpoint de puntaje consulta la fila existente en `gold_seller_score` y devuelve el puntaje, sus componentes y la fecha de cálculo. La API no vuelve a calcular esos valores. Acepta el ID del catálogo (`SEL-*`) y resuelve su UUID mediante `dim_seller_source_key`; también acepta directamente el UUID de `dim_seller`. En esta demo, varios IDs se agrupan por país y tipo, por lo que pueden compartir puntaje. Si todavía no hay puntaje, responde `404`; si Gold no está disponible, responde `503`. La API debe conectarse a la misma base PostgreSQL donde el job Spark escribe los resultados.
 
 ---
 
 ## Variables de Entorno Principales (`.env`)
 
-| Variable | Descripcion | Valor por defecto |
-| :--- | :--- | :--- |
-| `API_HOST` / `API_PORT` | Host y puerto de la API | `0.0.0.0` / `8000` |
-| `MASTER_SEED` | Semilla para calculo determinista | `42` |
-| `MAX_STOCK` | Limite superior de existencias por SKU | `450` |
-| `ERROR_RATE` | Tasa de simulacion de errores 429/503 | `0.0` (o `0.03` para 3%) |
-| `VALID_TOKENS` | Tokens Bearer autorizados (separados por coma) | `token-seller-123,bearer-token-mercaandes-2026` |
-| `POS_DB_HOST` | Host de PostgreSQL (`localhost` o `db` en docker) | `localhost` |
-| `POS_DB_PORT` | Puerto de PostgreSQL | `5432` |
-| `POS_DB_NAME` | Nombre de la base de datos | `MercaAndes` |
-| `POS_DB_USER` / `PASSWORD` | Credenciales de base de datos | *(Configuradas en `.env`)* |
+| Variable                       | Descripcion                                           | Valor por defecto                                 |
+| :----------------------------- | :---------------------------------------------------- | :------------------------------------------------ |
+| `API_HOST` / `API_PORT`    | Host y puerto de la API                               | `0.0.0.0` / `8000`                            |
+| `MASTER_SEED`                | Semilla para calculo determinista                     | `42`                                            |
+| `MAX_STOCK`                  | Limite superior de existencias por SKU                | `450`                                           |
+| `ERROR_RATE`                 | Tasa de simulacion de errores 429/503                 | `0.0` (o `0.03` para 3%)                      |
+| `VALID_TOKENS`               | Tokens Bearer autorizados (separados por coma)        | `token-seller-123,bearer-token-mercaandes-2026` |
+| `POS_DB_HOST`                | Host de PostgreSQL (`localhost` o `db` en docker) | `localhost`                                     |
+| `POS_DB_PORT`                | Puerto de PostgreSQL                                  | `5432`                                          |
+| `POS_DB_NAME`                | Nombre de la base de datos                            | `MercaAndes`                                    |
+| `POS_DB_USER` / `PASSWORD` | Credenciales de base de datos                         | *(Configuradas en `.env`)*                    |
 
 ---
 

@@ -36,6 +36,7 @@ from inventory.application.use_cases.get_seller_inventory import (
 from inventory.application.use_cases.list_sellers import (
     ListSellersUseCase,
 )
+from inventory.application.use_cases.get_seller_score import GetSellerScoreUseCase
 from inventory.application.use_cases.calculate_stock import (
     CalculateStockUseCase,
 )
@@ -104,3 +105,10 @@ def get_list_sellers_use_case(
 ) -> ListSellersUseCase:
     """Provide the list sellers use case."""
     return ListSellersUseCase(seller_repository=seller_repository)
+
+
+def get_seller_score_use_case(
+    seller_repository: SellerRepository = Depends(get_seller_repository),
+) -> GetSellerScoreUseCase:
+    """Provide a use case for retrieving persisted seller scores."""
+    return GetSellerScoreUseCase(seller_repository=seller_repository)

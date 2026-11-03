@@ -6,6 +6,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.exc import SQLAlchemyError
 
 from inventory.application.use_cases.get_seller_inventory import (
     GetSellerInventoryUseCase,
@@ -13,9 +14,11 @@ from inventory.application.use_cases.get_seller_inventory import (
 from inventory.application.use_cases.list_sellers import (
     ListSellersUseCase,
 )
+from inventory.application.use_cases.get_seller_score import GetSellerScoreUseCase
 from inventory.presentation.fastapi.deps import (
     get_list_sellers_use_case,
     get_seller_inventory_use_case,
+    get_seller_score_use_case,
 )
 
 router = APIRouter(prefix="/api/v1/sellers", tags=["sellers"])
@@ -66,6 +69,48 @@ def get_seller(
         "name": seller.name,
         "seller_type": seller.seller_type,
         "country": seller.country,
+    }
+
+
+@router.get(
+    "/{seller_id}/score",
+    summary="Get Seller Score",
+    description="Returns the seller score previously calculated and stored in Gold.",
+    status_code=status.HTTP_200_OK,
+)
+def get_seller_score(
+    seller_id: str = Path(
+        ..., description="Seller ID from the API or UUID from dim_seller"
+    ),
+    use_case: GetSellerScoreUseCase = Depends(get_seller_score_use_case),
+):
+    try:
+        score = use_case.execute(seller_id)
+    except KeyError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc).strip("'\""),
+        )
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Seller score data is not ready in Gold",
+        )
+
+    if score is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Score for seller '{seller_id}' is not available",
+        )
+
+    return {
+        "seller_id": score.seller_id,
+        "score": score.score,
+        "dispatch_pct": score.dispatch_pct,
+        "review_rating": score.review_rating,
+        "inventory_accuracy": score.inventory_accuracy,
+        "cancellation_rate": score.cancellation_rate,
+        "calculated_at": score.calculated_at,
     }
 
 
