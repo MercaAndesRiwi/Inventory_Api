@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from inventory.domain.entities.seller import Seller
+from inventory.domain.entities.seller import Seller, SellerScore
 
 
 class SellerRepository:
@@ -20,4 +20,8 @@ class SellerRepository:
 
     def list_all(self) -> List[Seller]:
         """Lists all sellers."""
+        raise NotImplementedError
+
+    def get_score(self, seller_id: str) -> Optional[SellerScore]:
+        """Returns the persisted Gold score for a seller, if available."""
         raise NotImplementedError

@@ -7,6 +7,8 @@ No external framework dependencies (pure Python).
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
+from decimal import Decimal
 
 
 @dataclass(frozen=True)
@@ -22,3 +24,16 @@ class Seller:
     def is_own(self) -> bool:
         """Indicates whether the seller is owned by MercaAndes."""
         return self.seller_type == "own"
+
+
+@dataclass(frozen=True)
+class SellerScore:
+    """Persisted seller score and its component metrics."""
+
+    seller_id: str
+    score: Decimal
+    dispatch_pct: Decimal
+    review_rating: Decimal
+    inventory_accuracy: Decimal
+    cancellation_rate: Decimal
+    calculated_at: datetime
