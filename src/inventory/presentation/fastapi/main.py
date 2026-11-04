@@ -3,6 +3,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, status
+from fastapi.middleware.cors import CORSMiddleware
 
 from inventory.infrastructure.persistence.seed_sellers import main as seed_db
 from inventory.presentation.fastapi.routes import sellers as sellers_routes
@@ -24,6 +25,14 @@ app = FastAPI(
     version="1.0.0",
     description="Mock REST API for seller inventory simulation featuring pagination, rate limits, and intermittent error injection.",
     lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(sellers_routes.router)

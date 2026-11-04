@@ -394,3 +394,21 @@ def test_seller_sku_endpoint():
         assert sku_data["sku"] == first_sku
     finally:
         app.dependency_overrides.clear()
+
+
+def test_cors_preflight_headers():
+    """Verify that OPTIONS preflight requests return CORS headers."""
+    from fastapi.testclient import TestClient
+    from inventory.presentation.fastapi.main import app
+
+    client = TestClient(app)
+    response = client.options(
+        "/api/v1/sellers",
+        headers={
+            "Origin": "http://localhost:3000",
+            "Access-Control-Request-Method": "GET",
+            "Access-Control-Request-Headers": "authorization",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
