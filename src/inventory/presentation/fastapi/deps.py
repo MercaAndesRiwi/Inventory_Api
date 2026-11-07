@@ -53,9 +53,14 @@ def get_engine() -> Engine:
                 "PostgreSQL credentials are not configured. "
                 "Set POS_DB_NAME, POS_DB_USER, and POS_DB_PASSWORD in .env"
             )
-        database_url = (
-            f"postgresql+psycopg://{POS_DB_USER}:{POS_DB_PASSWORD}"
-            f"@{POS_DB_HOST}:{POS_DB_PORT}/{POS_DB_NAME}"
+        from sqlalchemy.engine import URL
+        database_url = URL.create(
+            "postgresql+psycopg",
+            username=POS_DB_USER,
+            password=POS_DB_PASSWORD,
+            host=POS_DB_HOST,
+            port=int(POS_DB_PORT),
+            database=POS_DB_NAME,
         )
         _engine = create_engine(database_url, pool_pre_ping=True)
     return _engine
