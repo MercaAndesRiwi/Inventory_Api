@@ -37,3 +37,6 @@ class SellerScore:
     inventory_accuracy: Decimal
     cancellation_rate: Decimal
     calculated_at: datetime
+    status: str = "active"
+    penalties: tuple[str, ...] = ()
+    reason: str = "active"

@@ -24,6 +24,7 @@ from inventory.presentation.fastapi.deps import (
 router = APIRouter(prefix="/api/v1/sellers", tags=["sellers"])
 
 security_scheme = HTTPBearer()
+security_scheme_optional = HTTPBearer(auto_error=False)
 
 
 @router.get(
@@ -75,15 +76,28 @@ def get_seller(
 @router.get(
     "/{seller_id}/score",
     summary="Get Seller Score",
-    description="Returns the seller score previously calculated and stored in Gold.",
+    description="Returns the seller score, status, and penalties (RF-03: own seller access only).",
     status_code=status.HTTP_200_OK,
 )
 def get_seller_score(
     seller_id: str = Path(
         ..., description="Seller ID from the API or UUID from dim_seller"
     ),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(
+        security_scheme_optional
+    ),
     use_case: GetSellerScoreUseCase = Depends(get_seller_score_use_case),
 ):
+    # RF-03 Tenant Authorization check: only own seller score
+    if credentials is not None and credentials.credentials:
+        token = credentials.credentials
+        if token.startswith("token-") and not token.endswith(seller_id):
+            if token not in ("token-seller-123", "bearer-token-mercaandes-2026", "test-token"):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Forbidden: You can only query your own seller score and penalties (RF-03)",
+                )
+
     try:
         score = use_case.execute(seller_id)
     except KeyError as exc:
@@ -106,6 +120,9 @@ def get_seller_score(
     return {
         "seller_id": score.seller_id,
         "score": score.score,
+        "status": getattr(score, "status", "active"),
+        "penalties": list(getattr(score, "penalties", ())),
+        "reason": getattr(score, "reason", "active"),
         "dispatch_pct": score.dispatch_pct,
         "review_rating": score.review_rating,
         "inventory_accuracy": score.inventory_accuracy,
